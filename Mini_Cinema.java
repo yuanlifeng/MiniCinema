@@ -161,60 +161,95 @@ public class Mini_Cinema{
 	}
 
 	private static void menu() throws SQLException {
-		ResultSet rs = null;
 
+		ResultSet rs = null;
 		PreparedStatement preparedstatement = null;
 		Statement statement = null;
 		Scanner sc = new Scanner(System.in);
 
-		statement = con.createStatement();
-		rs = statement.executeQuery("SELECT * FROM User");
-		printResultSetfromUser(rs);
-
-
 		do {
-			System.out.println("1. User Sign Up Form");
-			System.out.println("2. Find movie by movie ID");
-			System.out.println("3. Find movie by runtime");
+			System.out.println("==================================================================");
+			System.out.println("1. Sign up for Mini Cinema");
+			System.out.println("2. Look up a movie by Movie ID");
+			System.out.println("3. Look up a movie by Movie title");
+			System.out.println("4. Find movies within a runtime range");
+			System.out.println("5. Find movies within a release date range");
+			System.out.println("6. Look up movies by number of favorites");
+			System.out.println("7.Look up movies by average rating");
+			System.out.println("8.Look up movies by actor");
 			System.out.print("Please select one of the options above by its number: ");
-			switch (sc.nextInt()){
+
+			int option = sc.nextInt();
+			sc.nextLine();
+			switch (option){
 				case 1:
+					System.out.println("1. User Sign Up Form");
 					preparedstatement = con.prepareStatement("INSERT INTO User(user_name, age, gender, registered_on) VALUES(?,?,?,?)");
 					System.out.println("Username: ");
-					String uname = sc.next();
-					System.out.println("Age: (0-99)");
+					String uname = sc.nextLine();
+					System.out.println("Age(0-99):");
 					int age = sc.nextInt();
-					System.out.println("Gender: (F/M)");
+					System.out.println("Gender(F/M):");
 					String gender = sc.next();
-
 					preparedstatement.setString(1,uname);
 					preparedstatement.setInt(2,age);
 					preparedstatement.setString(3,gender);
 					preparedstatement.setDate(4, new Date(System.currentTimeMillis()) );
 					preparedstatement.executeUpdate();
+					statement = con.createStatement();
+					rs = statement.executeQuery("SELECT * FROM User");
+					printResultSetfromUser(rs);
 					break;
 				case 2:
-					System.out.println("Please enter the movie id to find all information of the movie: ");
+					System.out.println("2. Please enter a movie ID to find all information of the movie: ");
 					preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE movie_id = ?");
-					int x = sc.nextInt();
-					preparedstatement.setInt(1,x);
+					int id = sc.nextInt();
+					preparedstatement.setInt(1,id);
 					rs = preparedstatement.executeQuery();
 					printResultSetfromMovie(rs);
 					break;
+
 				case 3:
-					System.out.println("Look up movie by runtime range(x,y):");
+					System.out.println("3. Please enter a movie title to find all information of the movie: ");
+					preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE title = ?");
+					String title = sc.nextLine();
+					preparedstatement.setString(1,title);
+					rs = preparedstatement.executeQuery();
+					printResultSetfromMovie(rs);
+				case 4:
+					System.out.println("4. Please enter X and Y to find movies with runtime in range(X,Y):");
 					preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE runtime > ? AND runtime < ?");
+					System.out.println("X:");
 					int min = sc.nextInt();
+					System.out.println("Y:");
 					int max = sc.nextInt();
 					preparedstatement.setInt(1,min);
 					preparedstatement.setInt(2,max);
 					rs = preparedstatement.executeQuery();
 					printResultSetfromMovie(rs);
 					break;
-				case 4:
-
+				case 5:
+					System.out.println("5. Find enter a year to find movies released within that year:");
+					System.out.println("Year:");
+					String year = sc.nextLine();
+					statement = con.createStatement();
+					rs = statement.executeQuery("SELECT * FROM Movie WHERE release_date LIKE '"  + year + "%'");
+					printResultSetfromMovie(rs);
 					break;
+				case 6:
+					System.out.println("6. Please enter a number to find movies with this # of favorite and above: ");
+					int fav = sc.nextInt();
+					moviesByFavNum(fav);
+				case 7:
+					System.out.println("7. Please enter a number to find movies with this # of rating and above:  ");
+					double average = sc.nextDouble();
+					moviesByAvgRating(average);
+				case 8:
+					System.out.println("8. Please enter the actor name: ");
+					String actor = sc.nextLine();
+					moviesByActor(actor);
 			}
+			System.out.println("==================================================================");
 		}while (true);
 
 	}
