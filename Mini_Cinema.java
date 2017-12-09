@@ -14,9 +14,20 @@ public class Mini_Cinema{
 	public static void main(String[] args) throws SQLException {
 		try {
 			Class.forName(JDBC_DRIVER);
-			createDatabase();
-			createTable();
-			loadDataIntoTable();
+			
+			try {
+				System.out.println("Connecting to database...");
+				con = DriverManager.getConnection(DB_URL + "Mini_Cinema", USER, PASS);
+				
+			} catch (SQLException ce) {
+				System.out.println("Connection Failed! Check output console");
+				ce.printStackTrace();
+				
+				createDatabase();
+				createTable();
+				loadDataIntoTable();
+			}
+			
 			menu();
 			// batchUpdate();
 			// callingStoredProcedure();
@@ -63,6 +74,7 @@ public class Mini_Cinema{
 		System.out.println("Database created successfully...");
 		con.close();
 	}
+	
 	private static void createTable() throws SQLException {
 
 		System.out.println("Connecting to database...");
@@ -203,6 +215,7 @@ public class Mini_Cinema{
 			System.out.println(movie_id + "," + title + "," + release_date + "," + runtime + "," + budget);
 		}
 	}
+	
 	private static void printResultSetfromMovieGenre(ResultSet rs) throws SQLException {
 
 		System.out.println("movie_id" + "|" + "genre");
@@ -212,6 +225,7 @@ public class Mini_Cinema{
 			System.out.println(movie_id + "," + genre);
 		}
 	}
+	
 	private static void printResultSetfromMovieCast(ResultSet rs) throws SQLException {
 
 		System.out.println("movie_id" + "|" + "movie_character " + "|" + "credit_id " + "|" + "person_id " + "|" + "name");
