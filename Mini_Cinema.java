@@ -7,7 +7,7 @@ public class Mini_Cinema{
 	static final String DB_URL = "jdbc:mysql://localhost/";
 
 	static final String USER = "root";
-	static final String PASS = "0000";
+	static final String PASS = "password";
 	private static Connection con = null;
 	private static Statement statement = null;
 
@@ -20,6 +20,12 @@ public class Mini_Cinema{
 			//menu();
 			// batchUpdate();
 			// callingStoredProcedure();
+
+			//testing
+			moviesByFavNum(4);
+			moviesByAvgRating(3.5);
+			moviesByActor("Jason Lee");
+
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
@@ -190,7 +196,7 @@ public class Mini_Cinema{
 			int movie_id = rs.getInt("movie_id");
 			String movie_character = rs.getString("movie_character");
 			String credit_id = rs.getString("credit_id");
-			int person_id  = rs.getInt("person_id ");
+ 			int person_id  = rs.getInt("person_id");
 			String name = rs.getString("name");
 			System.out.println(movie_id + "," + movie_character + "," + credit_id + "," + person_id  + "," + name);
 		}
@@ -239,6 +245,86 @@ public class Mini_Cinema{
 			hasResults = statement.getMoreResults();
 		} while (hasResults || statement.getUpdateCount() != -1);
 
+	}
+
+	private static void moviesByFavNum(int fav){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nList of movies with at least " + fav + " favorites");
+		try {
+			preparedstatement = con.prepareStatement("select Movie.title, Movie.movie_id, count(favorite) favs " +
+                    "from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id and favorite = true group by movie_id having favs > ?;");
+			preparedstatement.setInt(1, fav);
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				String title = rs.getString("title");
+				int mID = rs.getInt("movie_id");
+				int mFav = rs.getInt("favs");
+				System.out.printf("Title: %s | id: %d | favorites: %d\n", title, mID, mFav);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private static void moviesByAvgRating(double average){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nList of movies with at least " + average + " average rating");
+		try {
+			preparedstatement = con.prepareStatement("select Movie.title, Movie.movie_id, avg(rating) avgRating " +
+					"from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id group by movie_id having avgRating > ?;");
+			preparedstatement.setDouble(1, average);
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				String title = rs.getString("title");
+				int mID = rs.getInt("movie_id");
+				int avg = rs.getInt("avgRating");
+				System.out.printf("Title: %s | id: %d | average rating: %d\n", title, mID, avg);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void moviesByActor(String actor){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nList of movies with actor " + actor);
+		try {
+			preparedstatement = con.prepareStatement("select Movie.title from Movie, MovieCast where Movie.movie_id = MovieCast.movie_id and name = ?;");
+			preparedstatement.setString(1, actor);
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				String title = rs.getString("title");
+				System.out.printf("Title: %s \n", title);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void addToWatchList(int uID, int mID, String title){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nAdding  " + title + " to Watch List");
+		try {
+			preparedstatement = con.prepareStatement("insert into Watch_List (user_id, movie_id, title, added_on) values (?, ?, ?, ?);");
+			java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
+			preparedstatement.setInt(1, uID);
+			preparedstatement.setInt(2, mID);
+			preparedstatement.setString(3, title);
+			preparedstatement.setTimestamp(4, date);
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				String mTitle = rs.getString("title");
+				Timestamp addedOn = rs.getTimestamp("added_on");
+				System.out.printf("Title: %s added on: %s\n", title, addedOn);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
