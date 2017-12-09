@@ -17,7 +17,7 @@ public class Mini_Cinema{
 			createDatabase();
 			createTable();
 			loadDataIntoTable();
-			//menu();
+			menu();
 			// batchUpdate();
 			// callingStoredProcedure();
 
@@ -74,6 +74,12 @@ public class Mini_Cinema{
 		String queryCreateTableMovie = "CREATE TABLE Movie( movie_id INT, title VARCHAR(50),release_date VARCHAR(20),runtime INT,budget INT,PRIMARY KEY (movie_id))";
 		statement.execute(queryCreateTableMovie);
 		System.out.println("Movie table created successfully...");
+		
+		String queryDropTableMovieGenre = "DROP TABLE IF EXISTS MovieGenre";
+		statement.execute(queryDropTableMovieGenre);
+		String queryCreateTableMovieGenre = "CREATE TABLE MovieGenre( movie_id INT, genre VARCHAR(24), PRIMARY KEY (movie_id, genre), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id) ON DELETE CASCADE)";
+		statement.execute(queryCreateTableMovieGenre);
+		System.out.println("MovieGenre table created successfully...");
 
 		String queryDropTableMovieCast = "DROP TABLE IF EXISTS MovieCast";
 		statement.execute(queryDropTableMovieCast);
@@ -108,28 +114,36 @@ public class Mini_Cinema{
 
 	private static void loadDataIntoTable() throws SQLException {
 		ResultSet rs;
-		System.out.println("Loading data from 'tmdb_5000_movies.csv' file. Please wait for a moment.");
+		System.out.println("Loading data from 'movie.txt' file. Please wait for a moment.");
 		statement = con.createStatement();
-		String loadMovieDataSQL = "LOAD DATA LOCAL INFILE 'movies.csv' INTO TABLE Movie FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,title,release_date,runtime,budget)";
+		String loadMovieDataSQL = "LOAD DATA LOCAL INFILE 'movie.txt' INTO TABLE Movie FIELDS TERMINATED BY '%' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,title,release_date,runtime,budget)";
 		statement.execute(loadMovieDataSQL);
 		System.out.println("Data succesfullly loaded into TABLE Movie");
-		rs = statement.executeQuery("SELECT * FROM Movie");
+		rs = statement.executeQuery("SELECT * FROM Movie LIMIT 10");
 		printResultSetfromMovie(rs);
-
-		System.out.println("Loading data from 'cast.csv' file. Please wait for a moment.");
+		
+		System.out.println("Loading data from 'genre.txt' file. Please wait for a moment.");
 		statement = con.createStatement();
-		String loadCastDataSQL = "LOAD DATA LOCAL INFILE 'cast.csv' INTO TABLE MovieCast FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,movie_character,credit_id,person_id,name)";
+		String loadGenreDataSQL = "LOAD DATA LOCAL INFILE 'genre.txt' INTO TABLE MovieGenre FIELDS TERMINATED BY '%' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,genre)";
+		statement.execute(loadGenreDataSQL);
+		System.out.println("Data succesfullly loaded into TABLE MovieGenre");
+		rs = statement.executeQuery("SELECT * FROM MovieGenre LIMIT 10");
+		printResultSetfromMovieGenre(rs);
+
+		System.out.println("Loading data from 'cast.txt' file. Please wait for a moment.");
+		statement = con.createStatement();
+		String loadCastDataSQL = "LOAD DATA LOCAL INFILE 'cast.txt' INTO TABLE MovieCast FIELDS TERMINATED BY '%' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,movie_character,credit_id,person_id,name)";
 		statement.execute(loadCastDataSQL);
 		System.out.println("Data succesfullly loaded into TABLE MovieCast");
-		rs = statement.executeQuery("SELECT * FROM MovieCast");
+		rs = statement.executeQuery("SELECT * FROM MovieCast LIMIT 10");
 		printResultSetfromMovieCast(rs);
 
-		System.out.println("Loading data from 'crew.csv' file. Please wait for a moment.");
+		System.out.println("Loading data from 'crew.txt' file. Please wait for a moment.");
 		statement = con.createStatement();
-		String loadCrewDataSQL = "LOAD DATA LOCAL INFILE 'crew.csv' INTO TABLE MovieCrew FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,credit_id,person_id,job,name)";
+		String loadCrewDataSQL = "LOAD DATA LOCAL INFILE 'crew.txt' INTO TABLE MovieCrew FIELDS TERMINATED BY '%' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,credit_id,person_id,job,name)";
 		statement.execute(loadCrewDataSQL);
 		System.out.println("Data succesfullly loaded into TABLE MovieCrew");
-		rs = statement.executeQuery("SELECT * FROM MovieCrew");
+		rs = statement.executeQuery("SELECT * FROM MovieCrew LIMIT 10");
 		printResultSetfromMovieCrew(rs);
 	}
 
@@ -187,6 +201,15 @@ public class Mini_Cinema{
 			int runtime = rs.getInt("runtime");
 			int budget = rs.getInt("budget");
 			System.out.println(movie_id + "," + title + "," + release_date + "," + runtime + "," + budget);
+		}
+	}
+	private static void printResultSetfromMovieGenre(ResultSet rs) throws SQLException {
+
+		System.out.println("movie_id" + "|" + "genre");
+		while (rs.next()) {
+			int movie_id = rs.getInt("movie_id");
+			String genre = rs.getString("genre");
+			System.out.println(movie_id + "," + genre);
 		}
 	}
 	private static void printResultSetfromMovieCast(ResultSet rs) throws SQLException {
