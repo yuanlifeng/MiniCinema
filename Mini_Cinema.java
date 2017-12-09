@@ -102,21 +102,27 @@ public class Mini_Cinema{
 
 		String queryDropTableUser = "DROP TABLE IF EXISTS User";
 		statement.execute(queryDropTableUser);
-		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(30),age INT,gender CHAR(20),registered_on DATE DEFAULT '0000-00-00',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id))";
+		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(30),age INT,gender CHAR(20),registered_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id))";
 		statement.execute(queryCreateTableUser);
 		System.out.println("User table created successfully...");
 
 		String queryDropTableWatch_List = "DROP TABLE IF EXISTS Watch_List";
 		statement.execute(queryDropTableWatch_List);
-		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT,movie_id INT,title VARCHAR(50),orders INT,added_on DATE DEFAULT '0000-00-00',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id, added_on),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT,movie_id INT,title VARCHAR(50),orders INT,added_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id, added_on),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_List);
 		System.out.println("Watch_List table created successfully...");
 
 		String queryDropTableWatch_History = "DROP TABLE IF EXISTS Watch_History";
 		statement.execute(queryDropTableWatch_History);
-		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT,movie_id INT,title VARCHAR(50),rating INT,favorite BOOLEAN DEFAULT FALSE,watched_on DATE DEFAULT '0000-00-00',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id, watched_on),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT,movie_id INT,rating INT,favorite BOOLEAN DEFAULT FALSE,watched_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_History);
 		System.out.println("Watch_History table created successfully...");
+
+		String queryDropTableArchive = "DROP TABLE IF EXISTS Archive";
+		statement.execute(queryDropTableArchive);
+		String queryCreateTableArchive = "CREATE TABLE Archive( user_id INT,movie_id INT,rating INT,favorite BOOLEAN DEFAULT FALSE,watched_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id),FOREIGN KEY (user_id) REFERENCES User (user_id))";
+		statement.execute(queryCreateTableArchive);
+		System.out.println("Archive table created successfully...");
 	}
 
 	private static void loadDataIntoTable() throws SQLException {
@@ -206,6 +212,7 @@ public class Mini_Cinema{
 					printResultSetfromMovie(rs);
 					break;
 				case 4:
+
 					break;
 			}
 		}while (true);
