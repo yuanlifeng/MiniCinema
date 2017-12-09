@@ -17,7 +17,7 @@ public class Mini_Cinema{
 			createDatabase();
 			createTable();
 			loadDataIntoTable();
-			menu();
+			//menu();
 			// batchUpdate();
 			// callingStoredProcedure();
 		} catch (SQLException se) {
@@ -69,17 +69,17 @@ public class Mini_Cinema{
 		statement.execute(queryCreateTableMovie);
 		System.out.println("Movie table created successfully...");
 
-		String queryDropTableCasts = "DROP TABLE IF EXISTS Casts";
-		statement.execute(queryDropTableCasts);
-		String queryCreateTableCasts = "CREATE TABLE Casts(movie_id INT, characters VARCHAR(30), credit_id VARCHAR(24), person_id INT, name VARCHAR(30), PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
-		statement.execute(queryCreateTableCasts);
-		System.out.println("Casts table created successfully...");
+		String queryDropTableMovieCast = "DROP TABLE IF EXISTS MovieCast";
+		statement.execute(queryDropTableMovieCast);
+		String queryCreateTableMovieCast = "CREATE TABLE MovieCast(movie_id INT, movie_character VARCHAR(30), credit_id VARCHAR(24), person_id INT, name VARCHAR(30), PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		statement.execute(queryCreateTableMovieCast);
+		System.out.println("MovieCast table created successfully...");
 
-		String queryDropTableCrew = "DROP TABLE IF EXISTS Crew";
-		statement.execute(queryDropTableCrew);
-		String queryCreateTableCrew = "CREATE TABLE Crew( movie_id INT, credit_id VARCHAR(24), department VARCHAR(30),person_id INT,job VARCHAR(30),name VARCHAR(30),PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
-		statement.execute(queryCreateTableCrew);
-		System.out.println("Crew table created successfully...");
+		String queryDropTableMovieCrew = "DROP TABLE IF EXISTS MovieCrew";
+		statement.execute(queryDropTableMovieCrew);
+		String queryCreateTableMovieCrew = "CREATE TABLE MovieCrew( movie_id INT, credit_id VARCHAR(24),person_id INT,job VARCHAR(30),name VARCHAR(30),PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		statement.execute(queryCreateTableMovieCrew);
+		System.out.println("MovieCrew table created successfully...");
 
 		String queryDropTableUser = "DROP TABLE IF EXISTS User";
 		statement.execute(queryDropTableUser);
@@ -101,12 +101,30 @@ public class Mini_Cinema{
 	}
 
 	private static void loadDataIntoTable() throws SQLException {
-		System.out.println("Loading data from tmdb_5000_movies.csv");
+		ResultSet rs;
+		System.out.println("Loading data from 'tmdb_5000_movies.csv' file. Please wait for a moment.");
 		statement = con.createStatement();
-		String loadDataSQL = "LOAD DATA LOCAL INFILE 'tmdb_5000_movies.csv' INTO TABLE Movie FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,title,release_date,runtime,budget)";
-		statement.execute(loadDataSQL);
-		ResultSet rs = statement.executeQuery("SELECT * FROM Movie");
+		String loadMovieDataSQL = "LOAD DATA LOCAL INFILE 'movies.csv' INTO TABLE Movie FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,title,release_date,runtime,budget)";
+		statement.execute(loadMovieDataSQL);
+		System.out.println("Data succesfullly loaded into TABLE Movie");
+		rs = statement.executeQuery("SELECT * FROM Movie");
 		printResultSetfromMovie(rs);
+
+		System.out.println("Loading data from 'cast.csv' file. Please wait for a moment.");
+		statement = con.createStatement();
+		String loadCastDataSQL = "LOAD DATA LOCAL INFILE 'cast.csv' INTO TABLE MovieCast FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,movie_character,credit_id,person_id,name)";
+		statement.execute(loadCastDataSQL);
+		System.out.println("Data succesfullly loaded into TABLE MovieCast");
+		rs = statement.executeQuery("SELECT * FROM MovieCast");
+		printResultSetfromMovieCast(rs);
+
+		System.out.println("Loading data from 'crew.csv' file. Please wait for a moment.");
+		statement = con.createStatement();
+		String loadCrewDataSQL = "LOAD DATA LOCAL INFILE 'crew.csv' INTO TABLE MovieCrew FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,credit_id,person_id,job,name)";
+		statement.execute(loadCrewDataSQL);
+		System.out.println("Data succesfullly loaded into TABLE MovieCrew");
+		rs = statement.executeQuery("SELECT * FROM MovieCrew");
+		printResultSetfromMovieCrew(rs);
 	}
 
 	private static void menu() throws SQLException {
@@ -155,16 +173,41 @@ public class Mini_Cinema{
 
 	private static void printResultSetfromMovie(ResultSet rs) throws SQLException {
 
-		System.out.println("\t" + "movie_id" + "|" + "title" + "|" + "release_date" + "|" + "runtime" + "|" + "budget");
+		System.out.println("movie_id" + "|" + "title" + "|" + "release_date" + "|" + "runtime" + "|" + "budget");
 		while (rs.next()) {
-			int id = rs.getInt("movie_id");
+			int movie_id = rs.getInt("movie_id");
 			String title = rs.getString("title");
-			String date = rs.getString("release_date");
+			String release_date = rs.getString("release_date");
 			int runtime = rs.getInt("runtime");
 			int budget = rs.getInt("budget");
-			System.out.println("\t" + id + "," + title + "," + date + "," + runtime + "," + budget);
+			System.out.println(movie_id + "," + title + "," + release_date + "," + runtime + "," + budget);
 		}
 	}
+	private static void printResultSetfromMovieCast(ResultSet rs) throws SQLException {
+
+		System.out.println("movie_id" + "|" + "movie_character " + "|" + "credit_id " + "|" + "person_id " + "|" + "name");
+		while (rs.next()) {
+			int movie_id = rs.getInt("movie_id");
+			String movie_character = rs.getString("movie_character");
+			String credit_id = rs.getString("credit_id");
+			int person_id  = rs.getInt("person_id ");
+			String name = rs.getString("name");
+			System.out.println(movie_id + "," + movie_character + "," + credit_id + "," + person_id  + "," + name);
+		}
+	}
+	private static void printResultSetfromMovieCrew(ResultSet rs) throws SQLException {
+
+		System.out.println("movie_id" + "|" + "credit_id " + "|" + "person_id " + "|" + "job " + "|" + "name");
+		while (rs.next()) {
+			int movie_id = rs.getInt("movie_id");
+			String credit_id = rs.getString("credit_id");
+			int person_id = rs.getInt("person_id");
+			String job = rs.getString("job");
+			String name = rs.getString("name");
+			System.out.println(movie_id + "," + credit_id + "," + person_id + "," + job  + "," + name);
+		}
+	}
+
     private static void printResultSetfromUser(ResultSet rs) throws SQLException {
 		System.out.println("\t" + "user_id" + "|" + "user_name" + "|" + "age" + "|" + "gender" + "|" + "registered_on");
 			while (rs.next()) {
