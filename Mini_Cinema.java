@@ -164,42 +164,56 @@ public class Mini_Cinema{
 
 		PreparedStatement preparedstatement = null;
 		Statement statement = null;
-
-		System.out.println("Please enter the movie id to find all information of the movie: ");
-		preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE movie_id = ?");
 		Scanner sc = new Scanner(System.in);
-		int x = sc.nextInt();
-		preparedstatement.setInt(1,x);
-		rs = preparedstatement.executeQuery();
-		printResultSetfromMovie(rs);
-
-		System.out.println("Look up movie by runtime range(x,y):");
-		preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE runtime > ? AND runtime < ?");
-		int min = sc.nextInt();
-		int max = sc.nextInt();
-		preparedstatement.setInt(1,min);
-		preparedstatement.setInt(2,max);
-		rs = preparedstatement.executeQuery();
-		printResultSetfromMovie(rs);
-
-		System.out.println("User Sign Up Form");
-		preparedstatement = con.prepareStatement("INSERT INTO User(user_name, age, gender, registered_on) VALUES(?,?,?,?)");
-		System.out.println("Username: ");
-		String uname = sc.next();
-		System.out.println("Age: (0-99)");
-		int age = sc.nextInt();
-		System.out.println("Gender: (F/M)");
-		String gender = sc.next();
-
-		preparedstatement.setString(1,uname);
-		preparedstatement.setInt(2,age);
-		preparedstatement.setString(3,gender);
-		preparedstatement.setDate(4, new Date(System.currentTimeMillis()) );
-		preparedstatement.executeUpdate();
 
 		statement = con.createStatement();
 		rs = statement.executeQuery("SELECT * FROM User");
 		printResultSetfromUser(rs);
+
+
+		do {
+			System.out.println("1. User Sign Up Form");
+			System.out.println("2. Find movie by movie ID");
+			System.out.println("3. Find movie by runtime");
+			System.out.print("Please select one of the options above by its number: ");
+			switch (sc.nextInt()){
+				case 1:
+					preparedstatement = con.prepareStatement("INSERT INTO User(user_name, age, gender, registered_on) VALUES(?,?,?,?)");
+					System.out.println("Username: ");
+					String uname = sc.next();
+					System.out.println("Age: (0-99)");
+					int age = sc.nextInt();
+					System.out.println("Gender: (F/M)");
+					String gender = sc.next();
+
+					preparedstatement.setString(1,uname);
+					preparedstatement.setInt(2,age);
+					preparedstatement.setString(3,gender);
+					preparedstatement.setDate(4, new Date(System.currentTimeMillis()) );
+					preparedstatement.executeUpdate();
+					break;
+				case 2:
+					System.out.println("Please enter the movie id to find all information of the movie: ");
+					preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE movie_id = ?");
+					int x = sc.nextInt();
+					preparedstatement.setInt(1,x);
+					rs = preparedstatement.executeQuery();
+					printResultSetfromMovie(rs);
+					break;
+				case 3:
+					System.out.println("Look up movie by runtime range(x,y):");
+					preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE runtime > ? AND runtime < ?");
+					int min = sc.nextInt();
+					int max = sc.nextInt();
+					preparedstatement.setInt(1,min);
+					preparedstatement.setInt(2,max);
+					rs = preparedstatement.executeQuery();
+					printResultSetfromMovie(rs);
+					break;
+				case 4:
+					break;
+			}
+		}while (true);
 
 	}
 
