@@ -168,15 +168,30 @@ public class Mini_Cinema{
 		Scanner sc = new Scanner(System.in);
 
 		do {
+
 			System.out.println("==================================================================");
-			System.out.println("1. Sign up for Mini Cinema");
-			System.out.println("2. Look up a movie by Movie ID");
-			System.out.println("3. Look up a movie by Movie title");
-			System.out.println("4. Find movies within a runtime range");
-			System.out.println("5. Find movies within a release date range");
-			System.out.println("6. Look up movies by number of favorites");
-			System.out.println("7.Look up movies by average rating");
-			System.out.println("8.Look up movies by actor");
+			System.out.println(" 1. Sign up for Mini Cinema");
+			System.out.println(" 2. Look up a movie by Movie ID");
+			System.out.println(" 3. Look up a movie by Movie title");
+			System.out.println(" 4. Find movies within a runtime range");
+			System.out.println(" 5. Find movies within a release date range");
+			System.out.println(" 6. Look up movies by number of favorites");
+			System.out.println(" 7. Look up movies by average rating");
+			System.out.println(" 8. Look up movies by actor");
+			System.out.println(" 9. Add a movie to your Watch List");
+			System.out.println("10. Add a movie to your Watch History");
+			System.out.println("11. Remove a movie from your Watch List");
+			System.out.println("12. Rate a movie you watched");
+			System.out.println("13. Mark a movie you watched as one of their 'Favorites'");
+
+			System.out.println("14. Add a new movie to Movie table");
+			System.out.println("15. Add a new credit to MovieCast table");
+			System.out.println("16. Add a new credit to MovieCrew table");
+			System.out.println("17. Look up the most popular movies in all Users Watch Lists");
+			System.out.println("18. Look up the most watched movies in all Users Watch History");
+			System.out.println("19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
+			System.out.println("20. Look up the activity in Users Watch Lists and Watch History on a certain date");
+
 			System.out.print("Please select one of the options above by its number: ");
 
 			int option = sc.nextInt();
