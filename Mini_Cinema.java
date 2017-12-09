@@ -1,4 +1,6 @@
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 public class Mini_Cinema{
@@ -347,11 +349,7 @@ public class Mini_Cinema{
 			preparedstatement = con.prepareStatement("select Movie.title from Movie, MovieCast where Movie.movie_id = MovieCast.movie_id and name = ?;");
 			preparedstatement.setString(1, actor);
 			ResultSet rs = preparedstatement.executeQuery();
-			while(rs.next()){
-				String title = rs.getString("title");
-				System.out.printf("Title: %s \n", title);
-
-			}
+			printer.printResultSetfromMovie(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -368,10 +366,77 @@ public class Mini_Cinema{
 			preparedstatement.setString(3, title);
 			preparedstatement.setTimestamp(4, date);
 			ResultSet rs = preparedstatement.executeQuery();
+			printer.printResultSetfromWatch_List(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//14
+	private static void addNewMoview(int mID, String title, String date, int runtime, int budget){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nAdding  " + title + " to Movie table");
+		try {
+			preparedstatement = con.prepareStatement("insert into Movie (movie_id, title, release_date, runtime, budget) values (?, ?, ?, ?, ?);");
+			preparedstatement.setInt(1, mID);
+			preparedstatement.setString(2, title);
+			preparedstatement.setDate(3, Date.valueOf(date));
+			preparedstatement.setInt(4, runtime);
+			preparedstatement.setInt(5, budget);
+			ResultSet rs = preparedstatement.executeQuery();
+			printer.printResultSetfromMovie(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//15
+	private static void addNewCast(int mID, String character, String creditId, int personID, String name){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nAdding  credit " + creditId + " to MovieCast table");
+		try {
+			preparedstatement = con.prepareStatement("insert into MovieCast (movie_id, movie_character, credit_id, person_id, name) values (?, ?, ?, ?, ?);");
+			preparedstatement.setInt(1, mID);
+			preparedstatement.setString(2, character);
+			preparedstatement.setString(3,creditId);
+			preparedstatement.setInt(4, personID);
+			preparedstatement.setString(5, name);
+			ResultSet rs = preparedstatement.executeQuery();
+			printer.printResultSetfromMovieCast(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//16
+	private static void addNewCrew(int mID, String creditId, int personID, String job, String name){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nAdding  credit " + creditId + " to MovieCast table");
+		try {
+			preparedstatement = con.prepareStatement("insert into MovieCrew (movie_id, credit_id, person_id, job, name) values (?, ?, ?, ?, ?);");
+			preparedstatement.setInt(1, mID);
+			preparedstatement.setString(2,creditId);
+			preparedstatement.setInt(3, personID);
+			preparedstatement.setString(4, job);
+			preparedstatement.setString(5, name);
+			ResultSet rs = preparedstatement.executeQuery();
+			printer.printResultSetfromMovieCrew(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//17
+	private static void mostPopularInWatchList(){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nPopularity in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("select movie_id, count(*) as popularity from Watch_List group by movie_id order by popularity desc;");
+			ResultSet rs = preparedstatement.executeQuery();
 			while(rs.next()){
-				String mTitle = rs.getString("title");
-				Timestamp addedOn = rs.getTimestamp("added_on");
-				System.out.printf("Title: %s added on: %s\n", title, addedOn);
+				String mID = rs.getString("movie_id");
+				int popularity = rs.getInt("popularity");
+				System.out.printf("Movie %d has %d popularity\n", mID, popularity);
 
 			}
 		} catch (SQLException e) {
@@ -379,4 +444,21 @@ public class Mini_Cinema{
 		}
 	}
 
+	//18
+	private static void mostWatchInWatchList(){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nMost watch in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("sselect movie_id, count(*) as watches from Watch_History group by movie_id order by watches desc;");
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				String mID = rs.getString("movie_id");
+				int watch = rs.getInt("popularity");
+				System.out.printf("Movie %d has %d number of watch\n", mID, watch);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
