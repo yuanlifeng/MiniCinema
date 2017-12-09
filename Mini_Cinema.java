@@ -7,35 +7,30 @@ public class Mini_Cinema{
 	static final String DB_URL = "jdbc:mysql://localhost/";
 
 	static final String USER = "root";
-	static final String PASS = "password";
+	static final String PASS = "0000";
 	private static Connection con = null;
 	private static Statement statement = null;
 
 	public static void main(String[] args) throws SQLException {
 		try {
 			Class.forName(JDBC_DRIVER);
-			
+
 			try {
 				System.out.println("Connecting to database...");
 				con = DriverManager.getConnection(DB_URL + "Mini_Cinema", USER, PASS);
-				
+
 			} catch (SQLException ce) {
 				System.out.println("Connection Failed! Check output console");
 				ce.printStackTrace();
-				
+
 				createDatabase();
 				createTable();
 				loadDataIntoTable();
 			}
-			
+
 			menu();
 			// batchUpdate();
 			// callingStoredProcedure();
-
-			//testing
-			moviesByFavNum(4);
-			moviesByAvgRating(3.5);
-			moviesByActor("Jason Lee");
 
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -74,7 +69,7 @@ public class Mini_Cinema{
 		System.out.println("Database created successfully...");
 		con.close();
 	}
-	
+
 	private static void createTable() throws SQLException {
 
 		System.out.println("Connecting to database...");
@@ -86,7 +81,7 @@ public class Mini_Cinema{
 		String queryCreateTableMovie = "CREATE TABLE Movie( movie_id INT, title VARCHAR(50),release_date VARCHAR(20),runtime INT,budget INT,PRIMARY KEY (movie_id))";
 		statement.execute(queryCreateTableMovie);
 		System.out.println("Movie table created successfully...");
-		
+
 		String queryDropTableMovieGenre = "DROP TABLE IF EXISTS MovieGenre";
 		statement.execute(queryDropTableMovieGenre);
 		String queryCreateTableMovieGenre = "CREATE TABLE MovieGenre( movie_id INT, genre VARCHAR(24), PRIMARY KEY (movie_id, genre), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id) ON DELETE CASCADE)";
@@ -133,7 +128,7 @@ public class Mini_Cinema{
 		System.out.println("Data succesfullly loaded into TABLE Movie");
 		rs = statement.executeQuery("SELECT * FROM Movie LIMIT 10");
 		printResultSetfromMovie(rs);
-		
+
 		System.out.println("Loading data from 'genre.txt' file. Please wait for a moment.");
 		statement = con.createStatement();
 		String loadGenreDataSQL = "LOAD DATA LOCAL INFILE 'genre.txt' INTO TABLE MovieGenre FIELDS TERMINATED BY '%' LINES TERMINATED BY '\n' IGNORE 1 LINES (movie_id,genre)";
@@ -229,7 +224,7 @@ public class Mini_Cinema{
 			System.out.println(movie_id + "," + title + "," + release_date + "," + runtime + "," + budget);
 		}
 	}
-	
+
 	private static void printResultSetfromMovieGenre(ResultSet rs) throws SQLException {
 
 		System.out.println("movie_id" + "|" + "genre");
@@ -239,7 +234,7 @@ public class Mini_Cinema{
 			System.out.println(movie_id + "," + genre);
 		}
 	}
-	
+
 	private static void printResultSetfromMovieCast(ResultSet rs) throws SQLException {
 
 		System.out.println("movie_id" + "|" + "movie_character " + "|" + "credit_id " + "|" + "person_id " + "|" + "name");
@@ -266,17 +261,37 @@ public class Mini_Cinema{
 	}
 
     private static void printResultSetfromUser(ResultSet rs) throws SQLException {
-		System.out.println("\t" + "user_id" + "|" + "user_name" + "|" + "age" + "|" + "gender" + "|" + "registered_on");
+		System.out.println("user_id" + "|" + "user_name" + "|" + "age" + "|" + "gender" + "|" + "registered_on");
 			while (rs.next()) {
 				int id = rs.getInt("user_id");
 				String name = rs.getString("user_name");
 				int age = rs.getInt("age");
 				String gender = rs.getString("gender");
 				Date date= rs.getDate("registered_on");
-				System.out.println("\t" + id + "," + name + "," + age + "," + gender + "," + date);
+				System.out.println(id + "," + name + "," + age + "," + gender + "," + date);
 			}
 	}
-
+    private static void printResultSetfromWatch_List(ResultSet rs) throws SQLException {
+		System.out.println("user_id" + "|" + "movie_id" + "|" + "title" + "|" + "watch_order");
+			while (rs.next()) {
+				int user_id = rs.getInt("user_id");
+				int movie_id = rs.getInt("movie_id");
+				String title = rs.getString("title");
+				int watch_order = rs.getInt("watch_order");
+				System.out.println(user_id + "," + movie_id + "," + title + "," + watch_order);
+			}
+	}
+	private static void printResultSetfromWatch_History(ResultSet rs) throws SQLException {
+			System.out.println("user_id" + "|" + "movie_id" + "|" + "title" + "|" + "watch_order");
+				while (rs.next()) {
+					int user_id = rs.getInt("user_id");
+					int movie_id = rs.getInt("movie_id");
+					String title = rs.getString("title");
+					int rating  = rs.getInt("rating");
+					boolean favorite = rs.getBoolean("favorite");
+					System.out.println(user_id + "," + movie_id + "," + title + "," + rating + "," + favorite);
+				}
+	}
 	private static void callingStoredProcedure() throws SQLException {
 
 		String createProcedure = "CREATE PROCEDURE doSomething() " + "BEGIN SELECT * FROM Students ; "
