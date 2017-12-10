@@ -455,7 +455,7 @@ public class Mini_Cinema {
 				System.out.println("22. Look up the X most recent movies in a given genre");
 				System.out.println("Please enter a genre: ");
 				genre = sc.nextLine();
-				System.out.println("Please enter a number; : ");
+				System.out.println("Please enter the number of movies you want to output: ");
 				int x = sc.nextInt();
 				recentWatchMovieIn(genre, x);
 				break;
@@ -872,10 +872,11 @@ public class Mini_Cinema {
 			preparedstatement = con.prepareStatement(
 					"select user_id, movie_id from Watch_History h1 where h1.favorite = TRUE and h1.movie_id in (select h2.movie_id from Watch_History h2 where h1.user_id <> h2.user_id and h2.favorite = TRUE) group by movie_id, user_id;");
 			ResultSet rs = preparedstatement.executeQuery();
+			System.out.println("user_id|movie_id");
 			while (rs.next()) {
-				int mID = rs.getInt("movie_id");
 				int uID = rs.getInt("user_id");
-				System.out.printf("User favorite movie is \n", uID, mID);
+				int mID = rs.getInt("movie_id");
+				System.out.printf("%d,%d\n", uID, mID);
 
 			}
 		} catch (SQLException e) {
@@ -892,12 +893,14 @@ public class Mini_Cinema {
 			preparedstatement.setString(1, genre);
 			preparedstatement.setInt(2, x);
 			ResultSet rs = preparedstatement.executeQuery();
+			
+			System.out.println("movie_id" + "|" + "title");
 			while (rs.next()) {
-				int mID = rs.getInt("movie_id");
+				int movie_id = rs.getInt("movie_id");
 				String title = rs.getString("title");
-				System.out.printf("%d: %s", mID, title);
-
+				System.out.println(movie_id + "," + title);
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -906,13 +909,17 @@ public class Mini_Cinema {
 	// 23
     private static void callArchiveProc(String ts) {
         
-        System.out.println("\nMoving entries in Watch_History earlier than " + ts + "to Archive");
+        System.out.println("\nMoving entries in Watch_History earlier than " + ts + " to Archive");
         
         try {
             callablestatement = con.prepareCall(
                     "{CALL ArchiveWatchHistory(?)}");
             callablestatement.setTimestamp(1, Timestamp.valueOf(ts));
-            rs = callablestatement.executeQuery();
+            callablestatement.executeQuery();
+            
+            preparedstatement = con.prepareStatement(
+            		"SELECT user_id, movie_id, rating, favorite FROM Archive;");
+            rs = preparedstatement.executeQuery();
             printer.printResultSetfromArchive(rs);
 
         } catch (SQLException e) {
