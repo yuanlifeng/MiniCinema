@@ -81,4 +81,14 @@ public class CinemaPrinter {
 						System.out.println(user_id + "," + movie_id + "," + rating + "," + favorite);
 					}
 		}
+		public void printResultSetfromArchive(ResultSet rs) throws SQLException {
+            System.out.println("user_id" + "|" + "movie_id" + "|" + "rating" + "|" + "favorite");
+                while (rs.next()) {
+                    int user_id = rs.getInt("user_id");
+                    int movie_id = rs.getInt("movie_id");
+                    int rating  = rs.getInt("rating");
+                    boolean favorite = rs.getBoolean("favorite");
+                    System.out.println(user_id + "," + movie_id + "," + rating + "," + favorite);
+                }
+		}
 	}

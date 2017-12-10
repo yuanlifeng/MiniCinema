@@ -13,6 +13,7 @@ public class Mini_Cinema {
 	private static Connection con = null;
 	private static Statement statement = null;
 	private static PreparedStatement preparedstatement = null;
+	private static CallableStatement callablestatement = null;
 	private static ResultSet rs = null;
 	public static CinemaPrinter printer = new CinemaPrinter();
 
@@ -254,7 +255,7 @@ public class Mini_Cinema {
 
 		Scanner sc = new Scanner(System.in);
 		int mID, uID, rating, runtime, budget, personID;
-		String name, title, date, creditId, character, job, genre;
+		String name, title, date, creditId, character, job, genre, timestamp;
 
 		do {
 			System.out.println("==================================================================");
@@ -281,6 +282,7 @@ public class Mini_Cinema {
 			System.out.println("20. Look up the activity in Users Watch Lists and Watch History on a certain date");
 			System.out.println("21. Look up users that have the same favorite movies");
 			System.out.println("22. User can look up the X most recent movies in a given genre");
+			System.out.println("23. Admin can Archive entries in Watch History older than a given timestamp");
 			System.out.print("Please select one of the options above by its number: ");
 
 			int option = sc.nextInt();
@@ -424,6 +426,11 @@ public class Mini_Cinema {
 				System.out.println("Please enter a number; : ");
 				int x = sc.nextInt();
 				recentWatchMovieIn(genre, x);
+			case 23:
+				System.out.println("Please enter a timestamp in the format YYYY-MM-DD HH:MM:SS: ");
+				timestamp = sc.nextLine();
+				callArchiveProc(timestamp);
+				
 			}
 			System.out.println("==================================================================");
 		} while (true);
@@ -809,5 +816,23 @@ public class Mini_Cinema {
 			e.printStackTrace();
 		}
 	}
+	
+	// 23
+    private static void callArchiveProc(String ts) {
+        
+        System.out.println("\nMoving entries in Watch_History earlier than " + ts + " to Archive");
+        
+        try {
+            callablestatement = con.prepareCall(
+                    "{CALL ArchiveWatchHistory(?)}");
+            callablestatement.setTimestamp(1, Timestamp.valueOf(ts));
+            ResultSet rs = callablestatement.executeQuery();
+            printer.printResultSetfromArchive(rs);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+    }
 
 }
