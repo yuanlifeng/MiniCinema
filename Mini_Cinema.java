@@ -9,7 +9,7 @@ public class Mini_Cinema {
 	static final String DB_URL = "jdbc:mysql://localhost/";
 
 	static final String USER = "root";
-	static final String PASS = "0000";
+	static final String PASS = "";
 	private static Connection con = null;
 	private static Statement statement = null;
 	private static PreparedStatement preparedstatement = null;
@@ -280,8 +280,8 @@ public class Mini_Cinema {
 			System.out.println("19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
 			System.out.println("20. Look up the activity in Users Watch Lists and Watch History on a certain date");
 			System.out.println("21. Look up users that have the same favorite movies");
-			System.out.println("22. User can look up the X most recent movies in a given genre");
-			System.out.println("23. Admin can Archive entries in Watch History older than a given timestamp");
+			System.out.println("22. Look up the X most recent movies in a given genre");
+			System.out.println("23. Archive entries in Watch History older than a given timestamp");
 			System.out.print("Please select one of the options above by its number: ");
 
 			int option = sc.nextInt();
@@ -340,6 +340,7 @@ public class Mini_Cinema {
 				moviesByActor(actor);
 				break;
 			case 9:
+				System.out.println(" 9. Add a movie to your Watch List");
 				System.out.println("Add a movie to your Watch List");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
@@ -348,6 +349,7 @@ public class Mini_Cinema {
 				addToWatchList(uID,mID);
 				break;
 			case 10:
+				System.out.println("10. Add a movie to your Watch History");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
@@ -355,6 +357,7 @@ public class Mini_Cinema {
 				addToWatchHistory(uID, mID);
 				break;
 			case 11:
+				System.out.println("11. Remove a movie from your Watch List");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
@@ -372,6 +375,7 @@ public class Mini_Cinema {
 				rateMovie(rating, uID, mID);
 				break;
 			case 13:
+				System.out.println("13. Mark a movie you watched as one of their 'Favorites'");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
@@ -379,6 +383,7 @@ public class Mini_Cinema {
 				markAsFavorite(uID, mID);
 				break;
 			case 14:
+				System.out.println("14. Add a new movie to Movie table");
 				System.out.println("Please enter movie ID: ");
 				mID = sc.nextInt();
 				sc.nextLine();
@@ -393,6 +398,7 @@ public class Mini_Cinema {
 				addNewMoview(mID, title, date, runtime, budget);
 				break;
 			case 15:
+				System.out.println("15. Add a new credit to MovieCast table");
 				System.out.println("Please enter a Movie ID: ");
 				mID = sc.nextInt();
 				sc.nextLine();
@@ -408,6 +414,7 @@ public class Mini_Cinema {
 				addNewCast(mID, character, creditId,personID,name);
 				break;
 			case 16:
+				System.out.println("16. Add a new credit to MovieCrew table");
 				System.out.println("Please enter movie ID: ");
 				mID = sc.nextInt();
 				sc.nextLine();
@@ -423,23 +430,29 @@ public class Mini_Cinema {
 				addNewCrew(mID, creditId, personID, job, name);
 				break;
 			case 17:
+				System.out.println("17. Look up the most popular movies in all Users Watch Lists");
 			    mostPopularInWatchList();
 			    break;
 			case 18:
+				System.out.println("18. Look up the most watched movies in all Users Watch History");
 			    mostWatchInWatchList();
 			    break;
 			case 19:
+				System.out.println("19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
 				lookUserMovie();
 				break;
 			case 20:
+				System.out.println("20. Look up the activity in Users Watch Lists and Watch History on a certain date");
 				System.out.println("Please enter a date: ");
 				date = sc.nextLine();
 				userActivityOn(date);
 				break;
 			case 21:
+				System.out.println("21. Look up users that have the same favorite movies");
 				usersWithSameFav();
 				break;
 			case 22:
+				System.out.println("22. Look up the X most recent movies in a given genre");
 				System.out.println("Please enter a genre: ");
 				genre = sc.nextLine();
 				System.out.println("Please enter a number; : ");
@@ -447,6 +460,7 @@ public class Mini_Cinema {
 				recentWatchMovieIn(genre, x);
 				break;
 			case 23:
+				System.out.println("23. Archive entries in Watch History older than a given timestamp");
 				System.out.println("Please enter a timestamp in the format YYYY-MM-DD HH:MM:SS: ");
 				timestamp = sc.nextLine();
 				callArchiveProc(timestamp);
@@ -710,7 +724,12 @@ public class Mini_Cinema {
 			preparedstatement.setDate(3, Date.valueOf(date));
 			preparedstatement.setInt(4, runtime);
 			preparedstatement.setInt(5, budget);
+			preparedstatement.executeUpdate();
+			
+			preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE movie_id = ?");
+			preparedstatement.setInt(1, mID);
 			rs = preparedstatement.executeQuery();
+			
 			printer.printResultSetfromMovie(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -729,7 +748,12 @@ public class Mini_Cinema {
 			preparedstatement.setString(3, creditId);
 			preparedstatement.setInt(4, personID);
 			preparedstatement.setString(5, name);
+			preparedstatement.executeUpdate();
+			
+			preparedstatement = con.prepareStatement("SELECT * FROM MovieCast WHERE credit_id = ?");
+			preparedstatement.setString(1, creditId);
 			rs = preparedstatement.executeQuery();
+			
 			printer.printResultSetfromMovieCast(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -748,7 +772,12 @@ public class Mini_Cinema {
 			preparedstatement.setInt(3, personID);
 			preparedstatement.setString(4, job);
 			preparedstatement.setString(5, name);
+			preparedstatement.executeUpdate();
+			
+			preparedstatement = con.prepareStatement("SELECT * FROM MovieCrew WHERE credit_id = ?");
+			preparedstatement.setString(1, creditId);
 			rs = preparedstatement.executeQuery();
+			
 			printer.printResultSetfromMovieCrew(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
