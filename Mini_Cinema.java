@@ -27,7 +27,7 @@ public class Mini_Cinema {
 
 			} catch (SQLException ce) {
 				System.out.println("Connection Failed! Check output console");
-				ce.printStackTrace();
+				//ce.printStackTrace();
 
 				createDatabase();
 				createTable();
@@ -106,25 +106,25 @@ public class Mini_Cinema {
 
 		String queryDropTableUser = "DROP TABLE IF EXISTS User";
 		statement.execute(queryDropTableUser);
-		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(36), age INT, gender VARCHAR(12), registered_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id))";
+		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(36), age INT, gender VARCHAR(12), registered_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id))";
 		statement.execute(queryCreateTableUser);
 		System.out.println("User table created successfully...");
 
 		String queryDropTableWatch_List = "DROP TABLE IF EXISTS Watch_List";
 		statement.execute(queryDropTableWatch_List);
-		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT, movie_id INT, watch_order INT, added_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id, added_on), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT, movie_id INT, watch_order INT, added_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id, added_on), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_List);
 		System.out.println("Watch_List table created successfully...");
 
 		String queryDropTableWatch_History = "DROP TABLE IF EXISTS Watch_History";
 		statement.execute(queryDropTableWatch_History);
-		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_History);
 		System.out.println("Watch_History table created successfully...");
 
 		String queryDropTableArchive = "DROP TABLE IF EXISTS Archive";
 		statement.execute(queryDropTableArchive);
-		String queryCreateTableArchive = "CREATE TABLE Archive( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id))";
+		String queryCreateTableArchive = "CREATE TABLE Archive( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE DEFAULT '1970-01-01', updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id))";
 		statement.execute(queryCreateTableArchive);
 		System.out.println("Archive table created successfully...");
 	}
@@ -334,13 +334,13 @@ public class Mini_Cinema {
 				moviesByAvgRating(average);
 				break;
 			case 8:
-				System.out.println(" 8. Look up movies by actor");
+				System.out.println("8. Look up movies by actor");
 				System.out.println("Please enter the actor name: ");
 				String actor = sc.nextLine();
 				moviesByActor(actor);
 				break;
 			case 9:
-				System.out.println(" 9. Add a movie to your Watch List");
+				System.out.println("9. Add a movie to your Watch List");
 				System.out.println("Add a movie to your Watch List");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
@@ -438,7 +438,7 @@ public class Mini_Cinema {
 			    mostWatchInWatchList();
 			    break;
 			case 19:
-				System.out.println("19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
+				System.out.println("19. Look up all users and the movies in their Watch Lists, including Users that have nothing in their Watch List");
 				lookUserMovie();
 				break;
 			case 20:
@@ -795,7 +795,7 @@ public class Mini_Cinema {
 			while (rs.next()) {
 				String mID = rs.getString("movie_id");
 				int popularity = rs.getInt("popularity");
-				System.out.printf("Movie %d has %d popularity\n", mID, popularity);
+				System.out.printf("movie_ID: %s is in %d user's watch lists\n", mID, popularity);
 
 			}
 		} catch (SQLException e) {
@@ -806,15 +806,14 @@ public class Mini_Cinema {
 	// 18
 	private static void mostWatchInWatchList() {
 
-		System.out.println("\nMost watch in users watch lists");
 		try {
 			preparedstatement = con.prepareStatement(
-					"sselect movie_id, count(*) as watches from Watch_History group by movie_id order by watches desc;");
+					"select movie_id, count(*) as watches from Watch_History group by movie_id order by watches desc;");
 			rs = preparedstatement.executeQuery();
 			while (rs.next()) {
 				String mID = rs.getString("movie_id");
-				int watch = rs.getInt("popularity");
-				System.out.printf("Movie %d has %d number of watch\n", mID, watch);
+				int watch = rs.getInt("watches");
+				System.out.printf("movie_id: %s has been watched %d times\n", mID, watch);
 
 			}
 		} catch (SQLException e) {
@@ -825,15 +824,16 @@ public class Mini_Cinema {
 	// 19
 	private static void lookUserMovie() {
 
-		System.out.println("\nMost watch in users watch lists");
 		try {
 			preparedstatement = con.prepareStatement(
-					"select U.user_id, U.user_name, L.movie_id, from User U left outer join Watch_List L ;");
+					"select U.user_id, U.user_name, L.movie_id from User U left outer join Watch_List L on U.user_id = L.user_id;");
 			ResultSet rs = preparedstatement.executeQuery();
+			System.out.println("user_id|user_name|movie_id");
 			while (rs.next()) {
-				int mID = rs.getInt("movie_id");
-				int uID = rs.getInt("user_id");
-				System.out.printf("Movie %d is in %d user\n", mID, uID);
+				int uID = rs.getInt("U.user_id");
+				String uname = rs.getString("U.user_name");
+				int mID = rs.getInt("L.movie_id");
+				System.out.printf("%d,%s,%d\n", uID, uname, mID);
 
 			}
 		} catch (SQLException e) {
@@ -844,13 +844,22 @@ public class Mini_Cinema {
 	// 20
 	private static void userActivityOn(String date) {
 
-		System.out.println("\nMost watch in users watch lists");
 		try {
 			preparedstatement = con.prepareStatement(
 					"(select user_id, movie_id, updated_on from Watch_List where DATE(updated_on) = ?) union (select user_id, movie_id, updated_on from Watch_History where DATE(updated_on) = ?);");
-			preparedstatement.setDate(1, Date.valueOf(date));
-			preparedstatement.setDate(2, Date.valueOf(date));
-			ResultSet rs = preparedstatement.executeQuery();
+			preparedstatement.setString(1, date);
+			preparedstatement.setString(2, date);
+			rs = preparedstatement.executeQuery();
+			
+			System.out.println("user_id|movie_id|updated_on");
+			while (rs.next()) {
+				int uID = rs.getInt("user_id");
+				int mID = rs.getInt("movie_id");
+				Timestamp ts = rs.getTimestamp("updated_on");
+				String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(ts);
+				System.out.printf("%d,%d,%s\n", uID, mID, formattedDate);
+
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -859,7 +868,6 @@ public class Mini_Cinema {
 	// 21
 	private static void usersWithSameFav() {
 
-		System.out.println("\nMost watch in users watch lists");
 		try {
 			preparedstatement = con.prepareStatement(
 					"select user_id, movie_id from Watch_History h1 where h1.favorite = TRUE and h1.movie_id in (select h2.movie_id from Watch_History h2 where h1.user_id <> h2.user_id and h2.favorite = TRUE) group by movie_id, user_id;");
@@ -878,7 +886,6 @@ public class Mini_Cinema {
 	// 22
 	private static void recentWatchMovieIn(String genre, int x) {
 
-		System.out.println("\nMost watch in users watch lists");
 		try {
 			preparedstatement = con.prepareStatement("Select movie_id, title from Movie "
 					+ "where movie_id in (select movie_id from MovieGenre where genre = ?) order by release_date desc LIMIT ?;");
