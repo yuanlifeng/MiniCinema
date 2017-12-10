@@ -8,7 +8,7 @@ public class CinemaPrinter {
         while (rs.next()) {
             int movie_id = rs.getInt("movie_id");
             String title = rs.getString("title");
-            String release_date = rs.getString("release_date");
+            Date release_date = (Date) rs.getDate("release_date");
             int runtime = rs.getInt("runtime");
             int budget = rs.getInt("budget");
             System.out.println(movie_id + "," + title + "," + release_date + "," + runtime + "," + budget);
@@ -58,12 +58,12 @@ public class CinemaPrinter {
 					String name = rs.getString("user_name");
 					int age = rs.getInt("age");
 					String gender = rs.getString("gender");
-					Date date= rs.getDate("registered_on");
+					Date date = rs.getDate("registered_on");
 					System.out.println(id + "," + name + "," + age + "," + gender + "," + date);
 				}
 		}
 	    public void printResultSetfromWatch_List(ResultSet rs) throws SQLException {
-			System.out.println("user_id" + "|" + "movie_id" + "|" + "title" + "|" + "watch_order");
+			System.out.println("user_id" + "|" + "movie_id" + "|" + "watch_order");
 				while (rs.next()) {
 					int user_id = rs.getInt("user_id");
 					int movie_id = rs.getInt("movie_id");
@@ -72,7 +72,7 @@ public class CinemaPrinter {
 				}
 		}
 		public void printResultSetfromWatch_History(ResultSet rs) throws SQLException {
-				System.out.println("user_id" + "|" + "movie_id" + "|" + "watch_order");
+				System.out.println("user_id" + "|" + "movie_id" + "|" + "rating" + "|" + "favorite");
 					while (rs.next()) {
 						int user_id = rs.getInt("user_id");
 						int movie_id = rs.getInt("movie_id");

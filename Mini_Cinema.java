@@ -32,7 +32,8 @@ public class Mini_Cinema {
 				createTable();
 				loadDataIntoTable();
 			}
-
+			createTriggers();
+			createStoredProcs();
 			menu();
 			// batchUpdate();
 			// callingStoredProcedure();
@@ -83,8 +84,7 @@ public class Mini_Cinema {
 
 		String queryDropTableMovie = "DROP TABLE IF EXISTS Movie";
 		statement.execute(queryDropTableMovie);
-		String queryCreateTableMovie = "CREATE TABLE Movie( movie_id INT, title VARCHAR(50),release_date VARCHAR(20),runtime INT,budget INT,PRIMARY KEY (movie_id))";
-		statement.execute(queryCreateTableMovie);
+		String queryCreateTableMovie = "CREATE TABLE Movie( movie_id INT, title VARCHAR(100), release_date DATE, runtime INT, budget INT, PRIMARY KEY (movie_id))";statement.execute(queryCreateTableMovie);
 		System.out.println("Movie table created successfully...");
 
 		String queryDropTableMovieGenre = "DROP TABLE IF EXISTS MovieGenre";
@@ -95,37 +95,37 @@ public class Mini_Cinema {
 
 		String queryDropTableMovieCast = "DROP TABLE IF EXISTS MovieCast";
 		statement.execute(queryDropTableMovieCast);
-		String queryCreateTableMovieCast = "CREATE TABLE MovieCast(movie_id INT, movie_character VARCHAR(30), credit_id VARCHAR(24), person_id INT, name VARCHAR(30), PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableMovieCast = "CREATE TABLE MovieCast( movie_id INT, movie_character VARCHAR(300), credit_id VARCHAR(24), person_id INT, name VARCHAR(60), PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableMovieCast);
 		System.out.println("MovieCast table created successfully...");
 
 		String queryDropTableMovieCrew = "DROP TABLE IF EXISTS MovieCrew";
 		statement.execute(queryDropTableMovieCrew);
-		String queryCreateTableMovieCrew = "CREATE TABLE MovieCrew( movie_id INT, credit_id VARCHAR(24),person_id INT,job VARCHAR(30),name VARCHAR(30),PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableMovieCrew = "CREATE TABLE MovieCrew( movie_id INT, credit_id VARCHAR(24), person_id INT, job VARCHAR(60), name VARCHAR(60), PRIMARY KEY (credit_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableMovieCrew);
 		System.out.println("MovieCrew table created successfully...");
 
 		String queryDropTableUser = "DROP TABLE IF EXISTS User";
 		statement.execute(queryDropTableUser);
-		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(30),age INT,gender CHAR(20),registered_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id))";
+		String queryCreateTableUser = "CREATE TABLE User( user_id INT AUTO_INCREMENT, user_name VARCHAR(36), age INT, gender VARCHAR(12), registered_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id))";
 		statement.execute(queryCreateTableUser);
 		System.out.println("User table created successfully...");
 
 		String queryDropTableWatch_List = "DROP TABLE IF EXISTS Watch_List";
 		statement.execute(queryDropTableWatch_List);
-		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT,movie_id INT, orders INT,added_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id, added_on),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_List = "CREATE TABLE Watch_List( user_id INT, movie_id INT, watch_order INT, added_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id, added_on), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_List);
 		System.out.println("Watch_List table created successfully...");
 
 		String queryDropTableWatch_History = "DROP TABLE IF EXISTS Watch_History";
 		statement.execute(queryDropTableWatch_History);
-		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT,movie_id INT,rating INT,favorite BOOLEAN DEFAULT FALSE,watched_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id),FOREIGN KEY (user_id) REFERENCES User (user_id),FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
+		String queryCreateTableWatch_History = "CREATE TABLE Watch_History( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE NOT NULL DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id), FOREIGN KEY (movie_id) REFERENCES Movie (movie_id))";
 		statement.execute(queryCreateTableWatch_History);
 		System.out.println("Watch_History table created successfully...");
 
 		String queryDropTableArchive = "DROP TABLE IF EXISTS Archive";
 		statement.execute(queryDropTableArchive);
-		String queryCreateTableArchive = "CREATE TABLE Archive( user_id INT,movie_id INT,rating INT,favorite BOOLEAN DEFAULT FALSE,watched_on DATE DEFAULT '1970-01-01',updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (user_id, movie_id),FOREIGN KEY (user_id) REFERENCES User (user_id))";
+		String queryCreateTableArchive = "CREATE TABLE Archive( user_id INT, movie_id INT, rating INT, favorite BOOLEAN DEFAULT FALSE, watched_on DATE DEFAULT '1970-01-01', updated_on TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (user_id, movie_id), FOREIGN KEY (user_id) REFERENCES User (user_id))";
 		statement.execute(queryCreateTableArchive);
 		System.out.println("Archive table created successfully...");
 	}
@@ -163,6 +163,91 @@ public class Mini_Cinema {
 		System.out.println("Data succesfullly loaded into TABLE MovieCrew");
 		rs = statement.executeQuery("SELECT * FROM MovieCrew LIMIT 10");
 		printer.printResultSetfromMovieCrew(rs);
+	}
+	
+	private static void createTriggers() throws SQLException {
+		System.out.println("Connecting to database...");
+		con = DriverManager.getConnection(DB_URL + "Mini_Cinema", USER, PASS);
+		Statement statement = con.createStatement();
+		
+		String queryDropTriggerInsertWatchList = "DROP TRIGGER IF EXISTS InsertWatchList";
+		statement.execute(queryDropTriggerInsertWatchList);
+		String queryCreateTriggerInsertWatchList = 
+				"CREATE TRIGGER InsertWatchList " + 
+				"BEFORE INSERT ON Watch_List " + 
+				"FOR EACH ROW " + 
+				"BEGIN " + 
+					"declare countList INT; " + 
+					"select count(*) from Watch_List where user_id = NEW.user_id into countList; " + 
+					"set NEW.watch_order = countList + 1; " + 
+				"END;";
+
+		statement.execute(queryCreateTriggerInsertWatchList);
+		System.out.println("InsertWatchList trigger created successfully...");
+		
+		String queryDropTriggerInsertRatingConsistency = "DROP TRIGGER IF EXISTS InsertRatingConsistency";
+		statement.execute(queryDropTriggerInsertRatingConsistency);
+		String queryCreateTriggerInsertRatingConsistency = 
+				"CREATE TRIGGER InsertRatingConsistency " + 
+				"BEFORE INSERT ON Watch_History " + 
+				"FOR EACH ROW " + 
+				"BEGIN " + 
+					"if (NEW.rating < 0) Then set NEW.rating = 0; " + 
+					"elseif (NEW.rating > 10) Then set NEW.rating = 10; " + 
+					"end if; " + 
+				"END;";
+
+		statement.execute(queryCreateTriggerInsertRatingConsistency);
+		System.out.println("InsertRatingConsistency trigger created successfully...");
+		
+		String queryDropTriggerUpdateRatingConsistency = "DROP TRIGGER IF EXISTS UpdateRatingConsistency";
+		statement.execute(queryDropTriggerUpdateRatingConsistency);
+		String queryCreateTriggerUpdateRatingConsistency = 
+				"CREATE TRIGGER UpdateRatingConsistency " + 
+				"BEFORE UPDATE ON Watch_History " + 
+				"FOR EACH ROW " + 
+				"BEGIN " + 
+					"if (NEW.rating < 0) Then set NEW.rating = 0; " + 
+					"elseif (NEW.rating > 10) Then set NEW.rating = 10; " + 
+					"end if; " + 
+				"END;";
+
+		statement.execute(queryCreateTriggerUpdateRatingConsistency);
+		System.out.println("UpdateRatingConsistency trigger created successfully...");
+		
+	}
+	
+	private static void createStoredProcs() throws SQLException {
+		System.out.println("Connecting to database...");
+		con = DriverManager.getConnection(DB_URL + "Mini_Cinema", USER, PASS);
+		Statement statement = con.createStatement();
+		
+		String queryDropProcedureDeleteFromWatchList = "DROP PROCEDURE IF EXISTS DeleteFromWatchList";
+		statement.execute(queryDropProcedureDeleteFromWatchList);
+		String queryCreateProcedureDeleteFromWatchList = 
+				"CREATE PROCEDURE DeleteFromWatchList(IN uID INT, IN movID INT) " + 
+				"BEGIN " + 
+					"declare w_o INT; " + 
+					"select watch_order from Watch_List where user_id = uID and movie_id = movID into w_o; " + 
+					"delete from Watch_List where user_id = uID and movie_id = movID; " + 
+					"update Watch_List set watch_order = watch_order - 1 where user_id = uID and watch_order > w_o; " +
+				"END";
+
+		statement.execute(queryCreateProcedureDeleteFromWatchList);
+		System.out.println("DeleteFromWatchList procedure created successfully...");
+		
+		String queryDropProcedureArchiveWatchHistory = "DROP PROCEDURE IF EXISTS ArchiveWatchHistory";
+		statement.execute(queryDropProcedureArchiveWatchHistory);
+		String queryCreateProcedureArchiveWatchHistory = 
+				"CREATE PROCEDURE ArchiveWatchHistory(IN lastUpdate TIMESTAMP) " + 
+				"BEGIN " + 
+					"insert into Archive (select * from Watch_History where updated_on < lastUpdate); " + 
+					"delete from Watch_History where updated_on < lastUpdate; " +  
+				"END";
+
+		statement.execute(queryCreateProcedureArchiveWatchHistory);
+		System.out.println("ArchiveWatchHistory procedure created successfully...");
+		
 	}
 
 	private static void menu() throws SQLException {
