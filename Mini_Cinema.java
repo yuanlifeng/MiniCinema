@@ -36,8 +36,6 @@ public class Mini_Cinema {
 			createTriggers();
 			createStoredProcs();
 			menu();
-			// batchUpdate();
-			// callingStoredProcedure();
 
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -622,12 +620,18 @@ public class Mini_Cinema {
 
 			try {
 				preparedstatement = con.prepareStatement(
-						"insert into Watch_History (user_id, movie_id, added_on) values (?, ?, ?);");
+						"insert into Watch_History (user_id, movie_id, watched_on) values (?, ?, ?);");
 				java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
 				preparedstatement.setInt(1, uID);
 				preparedstatement.setInt(2, mID);
 				preparedstatement.setTimestamp(3, date);
+				preparedstatement.executeUpdate();
+				
+				preparedstatement = con.prepareStatement(
+						"SELECT user_id, movie_id, rating, favorite FROM Watch_History where user_id = ?;");
+				preparedstatement.setInt(1, uID);
 				rs = preparedstatement.executeQuery();
+				
 				printer.printResultSetfromWatch_History(rs);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -640,6 +644,12 @@ public class Mini_Cinema {
 				callablestatement.setInt(1, uID);
 				callablestatement.setInt(2, mID);
 				rs = callablestatement.executeQuery();
+				
+				preparedstatement = con.prepareStatement(
+						"SELECT user_id, movie_id, watch_order FROM Watch_List where user_id = ?;");
+				preparedstatement.setInt(1, uID);
+				rs = preparedstatement.executeQuery();
+				
 				printer.printResultSetfromWatch_List(rs);
 			} catch (SQLException e) {
 				e.printStackTrace();
