@@ -434,7 +434,7 @@ public class Mini_Cinema{
 			preparedstatement = con.prepareStatement("select movie_id, count(*) as popularity from Watch_List group by movie_id order by popularity desc;");
 			ResultSet rs = preparedstatement.executeQuery();
 			while(rs.next()){
-				String mID = rs.getString("movie_id");
+				int mID = rs.getInt("movie_id");
 				int popularity = rs.getInt("popularity");
 				System.out.printf("Movie %d has %d popularity\n", mID, popularity);
 
@@ -449,12 +449,83 @@ public class Mini_Cinema{
 		PreparedStatement preparedstatement = null;
 		System.out.println("\nMost watch in users watch lists");
 		try {
-			preparedstatement = con.prepareStatement("sselect movie_id, count(*) as watches from Watch_History group by movie_id order by watches desc;");
+			preparedstatement = con.prepareStatement("select movie_id, count(*) as watches from Watch_History group by movie_id order by watches desc;");
 			ResultSet rs = preparedstatement.executeQuery();
 			while(rs.next()){
-				String mID = rs.getString("movie_id");
+				int mID = rs.getInt("movie_id");
 				int watch = rs.getInt("popularity");
 				System.out.printf("Movie %d has %d number of watch\n", mID, watch);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//19
+	private static void lookUserMovie(){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nMost watch in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("select U.user_id, U.user_name, L.movie_id, from User U left outer join Watch_List L ;");
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				int mID = rs.getInt("movie_id");
+				int uID = rs.getInt("user_id");
+				System.out.printf("Movie %d is in %d user\n", mID, uID);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//20
+	private static void userActivityOn(String date){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nMost watch in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("(select user_id, movie_id, updated_on from Watch_List where DATE(updated_on) = ?) union (select user_id, movie_id, updated_on from Watch_History where DATE(updated_on) = ?);");
+			preparedstatement.setDate(1, Date.valueOf(date));
+			preparedstatement.setDate(2, Date.valueOf(date);
+			ResultSet rs = preparedstatement.executeQuery();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//21
+	private static void usersWithSameFav(){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nMost watch in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("select user_id, movie_id from Watch_History h1 where h1.favorite = TRUE and h1.movie_id in (select h2.movie_id from Watch_History h2 where h1.user_id <> h2.user_id and h2.favorite = TRUE) group by movie_id, user_id;");
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				int mID = rs.getInt("movie_id");
+				int uID = rs.getInt("user_id");
+				System.out.printf("User favorite movie is \n", uID, mID);
+
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//22
+	private static void recentWatchMovieIn(String genre, int x){
+		PreparedStatement preparedstatement = null;
+		System.out.println("\nMost watch in users watch lists");
+		try {
+			preparedstatement = con.prepareStatement("Select movie_id, title from Movie " +
+					"where movie_id in (select movie_id from MovieGenre where genre = ?) order by release_date desc LIMIT ?;");
+			preparedstatement.setString(1, genre);
+			preparedstatement.setInt(2, x);
+			ResultSet rs = preparedstatement.executeQuery();
+			while(rs.next()){
+				int mID = rs.getInt("movie_id");
+				String title = rs.getString("title");
+				System.out.printf("%d: %s", mID, title);
 
 			}
 		} catch (SQLException e) {
