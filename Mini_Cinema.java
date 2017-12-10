@@ -596,7 +596,7 @@ public class Mini_Cinema {
 		System.out.println("\nList of movies with actor " + actor);
 		try {
 			preparedstatement = con.prepareStatement(
-					"select Movie.title from Movie, MovieCast where Movie.movie_id = MovieCast.movie_id and name = ?;");
+					"select Movie.title from Movie, MovieCast where Movie.movie_id = MovieCast.movie_id and `name` = ?;");
 			preparedstatement.setString(1, actor);
 			rs = preparedstatement.executeQuery();
 			while (rs.next()) {
