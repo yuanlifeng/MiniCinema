@@ -259,6 +259,7 @@ public class Mini_Cinema {
 
 		do {
 			System.out.println("==================================================================");
+			System.out.println(" 0. Quit");
 			System.out.println(" 1. Sign up for Mini Cinema");
 			System.out.println(" 2. Look up a movie by Movie ID");
 			System.out.println(" 3. Look up a movie by Movie title");
@@ -288,6 +289,8 @@ public class Mini_Cinema {
 			int option = sc.nextInt();
 			sc.nextLine();
 			switch (option) {
+			case 0:
+				return;
 			case 1:
 				System.out.println("1. User Sign Up Form");
 				System.out.println("Username: ");
@@ -326,14 +329,17 @@ public class Mini_Cinema {
 				System.out.println("6. Please enter a number to find movies with this # of favorite and above: ");
 				int fav = sc.nextInt();
 				moviesByFavNum(fav);
+				break;
 			case 7:
 				System.out.println("7. Please enter a number to find movies with this # of rating and above:  ");
 				double average = sc.nextDouble();
 				moviesByAvgRating(average);
+				break;
 			case 8:
 				System.out.println("Please enter the actor name: ");
 				String actor = sc.nextLine();
 				moviesByActor(actor);
+				break;
 			case 9:
 				System.out.println("Add a movie to your Watch List");
 				System.out.println("Please enter your user ID: ");
@@ -341,18 +347,21 @@ public class Mini_Cinema {
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
 				addToWatchList(uID,mID);
+				break;
 			case 10:
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
 				addToWatchHistory(uID, mID);
+				break;
 			case 11:
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
 				removeMovieFromWatchList( uID,  mID);
+				break;
 			case 12:
 				System.out.println("Please enter your rating: ");
 				rating = sc.nextInt();
@@ -361,12 +370,14 @@ public class Mini_Cinema {
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
 				rateMovie(rating, uID, mID);
+				break;
 			case 13:
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
 				markAsFavorite(uID, mID);
+				break;
 			case 14:
 				System.out.println("Please enter movie ID: ");
 				mID = sc.nextInt();
@@ -380,6 +391,7 @@ public class Mini_Cinema {
 				System.out.println("Please enter budget: ");
 				budget = sc.nextInt();
 				addNewMoview(mID, title, date, runtime, budget);
+				break;
 			case 15:
 				System.out.println("Please enter a Movie ID: ");
 				mID = sc.nextInt();
@@ -394,6 +406,7 @@ public class Mini_Cinema {
 				System.out.println("Please enter his/her name: ");
 				name = sc.nextLine();
 				addNewCast(mID, character, creditId,personID,name);
+				break;
 			case 16:
 				System.out.println("Please enter movie ID: ");
 				mID = sc.nextInt();
@@ -408,29 +421,38 @@ public class Mini_Cinema {
 				System.out.println("Please enter his/her name: ");
 				name = sc.nextLine();
 				addNewCrew(mID, creditId, personID, job, name);
+				break;
 			case 17:
 			    mostPopularInWatchList();
+			    break;
 			case 18:
 			    mostWatchInWatchList();
+			    break;
 			case 19:
 				lookUserMovie();
+				break;
 			case 20:
 				System.out.println("Please enter a date: ");
 				date = sc.nextLine();
 				userActivityOn(date);
+				break;
 			case 21:
 				usersWithSameFav();
+				break;
 			case 22:
 				System.out.println("Please enter a genre: ");
 				genre = sc.nextLine();
 				System.out.println("Please enter a number; : ");
 				int x = sc.nextInt();
 				recentWatchMovieIn(genre, x);
+				break;
 			case 23:
 				System.out.println("Please enter a timestamp in the format YYYY-MM-DD HH:MM:SS: ");
 				timestamp = sc.nextLine();
 				callArchiveProc(timestamp);
-				
+				break;
+			default:
+				break;
 			}
 			System.out.println("==================================================================");
 		} while (true);
@@ -582,8 +604,15 @@ public class Mini_Cinema {
 			preparedstatement.setInt(1, uID);
 			preparedstatement.setInt(2, mID);
 			preparedstatement.setTimestamp(3, date);
+			preparedstatement.executeUpdate();
+			
+			preparedstatement = con.prepareStatement(
+					"SELECT user_id, movie_id, watch_order FROM Watch_List where user_id = ?;");
+			preparedstatement.setInt(1, uID);
 			rs = preparedstatement.executeQuery();
+			
 			printer.printResultSetfromWatch_List(rs);
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -607,10 +636,10 @@ public class Mini_Cinema {
 	// 11
 	private static void removeMovieFromWatchList(int uID, int mID) {
 			try {
-				preparedstatement = con.prepareStatement("call DeleteFromWatchList(?, ?);");
-				preparedstatement.setInt(1, uID);
-				preparedstatement.setInt(2, mID);
-				rs = preparedstatement.executeQuery();
+				callablestatement = con.prepareCall("call DeleteFromWatchList(?, ?);");
+				callablestatement.setInt(1, uID);
+				callablestatement.setInt(2, mID);
+				rs = callablestatement.executeQuery();
 				printer.printResultSetfromWatch_List(rs);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -820,13 +849,13 @@ public class Mini_Cinema {
 	// 23
     private static void callArchiveProc(String ts) {
         
-        System.out.println("\nMoving entries in Watch_History earlier than " + ts + " to Archive");
+        System.out.println("\nMoving entries in Watch_History earlier than " + ts + "to Archive");
         
         try {
             callablestatement = con.prepareCall(
                     "{CALL ArchiveWatchHistory(?)}");
             callablestatement.setTimestamp(1, Timestamp.valueOf(ts));
-            ResultSet rs = callablestatement.executeQuery();
+            rs = callablestatement.executeQuery();
             printer.printResultSetfromArchive(rs);
 
         } catch (SQLException e) {
