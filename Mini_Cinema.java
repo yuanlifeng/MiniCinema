@@ -1,5 +1,8 @@
+//Team Name: HIGH_FIVE
+//Member Names: Michael Torres, Lifeng Yuan, Quoc Nguyen
+//Project Title: Mini Cinema  
+
 import java.sql.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
@@ -9,7 +12,7 @@ public class Mini_Cinema {
 	static final String DB_URL = "jdbc:mysql://localhost/";
 
 	static final String USER = "root";
-	static final String PASS = "";
+	static final String PASS = "password";
 	private static Connection con = null;
 	private static Statement statement = null;
 	private static PreparedStatement preparedstatement = null;

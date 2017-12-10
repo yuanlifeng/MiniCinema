@@ -1,3 +1,7 @@
+//Team Name: HIGH_FIVE
+//Member Names: Michael Torres, Lifeng Yuan, Quoc Nguyen
+//Project Title: Mini Cinema  
+
 import java.sql.*;
 
 public class CinemaPrinter {
