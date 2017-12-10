@@ -508,7 +508,7 @@ public class Mini_Cinema {
 	private static void moviesByRuntime(int min, int max) {
 
 		try {
-			preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE runtime > ? AND runtime < ?");
+			preparedstatement = con.prepareStatement("SELECT * FROM Movie WHERE runtime BETWEEN ? AND ?");
 			preparedstatement.setInt(1, min);
 			preparedstatement.setInt(2, max);
 			rs = preparedstatement.executeQuery();
@@ -536,7 +536,7 @@ public class Mini_Cinema {
 		System.out.println("\nList of movies with at least " + fav + " favorites");
 		try {
 			preparedstatement = con.prepareStatement("select Movie.title, Movie.movie_id, count(favorite) favs "
-					+ "from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id and favorite = true group by movie_id having favs > ?;");
+					+ "from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id and favorite = true group by movie_id having favs >= ?;");
 			preparedstatement.setInt(1, fav);
 			rs = preparedstatement.executeQuery();
 			while (rs.next()) {
@@ -558,7 +558,7 @@ public class Mini_Cinema {
 		System.out.println("\nList of movies with at least " + average + " average rating");
 		try {
 			preparedstatement = con.prepareStatement("select Movie.title, Movie.movie_id, avg(rating) avgRating "
-					+ "from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id group by movie_id having avgRating > ?;");
+					+ "from Movie, Watch_History where Movie.movie_id = Watch_History.movie_id group by movie_id having avgRating >= ?;");
 			preparedstatement.setDouble(1, average);
 			rs = preparedstatement.executeQuery();
 			while (rs.next()) {
@@ -587,8 +587,6 @@ public class Mini_Cinema {
 				System.out.printf("Title: %s \n", title);
 
 			}
-			rs = preparedstatement.executeQuery();
-			printer.printResultSetfromMovie(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
