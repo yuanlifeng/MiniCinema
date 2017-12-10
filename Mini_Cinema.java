@@ -334,6 +334,7 @@ public class Mini_Cinema {
 				moviesByAvgRating(average);
 				break;
 			case 8:
+				System.out.println(" 8. Look up movies by actor");
 				System.out.println("Please enter the actor name: ");
 				String actor = sc.nextLine();
 				moviesByActor(actor);
@@ -361,12 +362,13 @@ public class Mini_Cinema {
 				removeMovieFromWatchList( uID,  mID);
 				break;
 			case 12:
-				System.out.println("Please enter your rating: ");
-				rating = sc.nextInt();
+				System.out.println("12. Rate a movie you watched");
 				System.out.println("Please enter your user ID: ");
 				uID = sc.nextInt();
 				System.out.println("Please enter the movie ID: ");
 				mID = sc.nextInt();
+				System.out.println("Please enter your rating: ");
+				rating = sc.nextInt();
 				rateMovie(rating, uID, mID);
 				break;
 			case 13:
@@ -660,12 +662,17 @@ public class Mini_Cinema {
 			try {
 				preparedstatement = con.prepareStatement(
 						"update Watch_History set rating = ? where user_id = ? and movie_id = ?;");
-				java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
 				preparedstatement.setInt(1, rating);
 				preparedstatement.setInt(2, uID);
 				preparedstatement.setInt(3, mID);
+				preparedstatement.executeUpdate();
+				
+				preparedstatement = con.prepareStatement(
+						"SELECT user_id, movie_id, rating, favorite FROM Watch_History where user_id = ?;");
+				preparedstatement.setInt(1, uID);
 				rs = preparedstatement.executeQuery();
-				printer.printResultSetfromWatch_List(rs);
+				
+				printer.printResultSetfromWatch_History(rs);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -679,8 +686,14 @@ public class Mini_Cinema {
 					"UPDATE Watch_History SET favorite = true WHERE user_id = ? AND movie_id = ?;");
 			preparedstatement.setInt(1, uID);
 			preparedstatement.setInt(2, mID);
+			preparedstatement.executeUpdate();
+			
+			preparedstatement = con.prepareStatement(
+					"SELECT user_id, movie_id, rating, favorite FROM Watch_History where user_id = ?;");
+			preparedstatement.setInt(1, uID);
 			rs = preparedstatement.executeQuery();
-			printer.printResultSetfromWatch_List(rs);
+			
+			printer.printResultSetfromWatch_History(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
