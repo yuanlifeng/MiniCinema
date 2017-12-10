@@ -168,6 +168,8 @@ public class Mini_Cinema {
 	private static void menu() throws SQLException {
 
 		Scanner sc = new Scanner(System.in);
+		int mID, uID, rating, runtime, budget, personID;
+		String name, title, date, creditId, character, job, genre;
 
 		do {
 			System.out.println("==================================================================");
@@ -190,8 +192,7 @@ public class Mini_Cinema {
 			System.out.println("16. Add a new credit to MovieCrew table");
 			System.out.println("17. Look up the most popular movies in all Users Watch Lists");
 			System.out.println("18. Look up the most watched movies in all Users Watch History");
-			System.out.println(
-					"19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
+			System.out.println("19. Look up the number of movies in all Users Watch Lists, including Users that have nothing in their Watch List");
 			System.out.println("20. Look up the activity in Users Watch Lists and Watch History on a certain date");
 			System.out.println("21. Look up users that have the same favorite movies");
 			System.out.println("22. User can look up the X most recent movies in a given genre");
@@ -212,12 +213,12 @@ public class Mini_Cinema {
 				break;
 			case 2:
 				System.out.println("2. Please enter a movie ID to find all information of the movie: ");
-				int id = sc.nextInt();
-				movieByID(id);
+				mID = sc.nextInt();
+				movieByID(mID);
 				break;
 			case 3:
 				System.out.println("3. Please enter a movie title to find all information of the movie: ");
-				String title = sc.nextLine();
+				title = sc.nextLine();
 				movieByTitle(title);
 				break;
 			case 4:
@@ -243,41 +244,104 @@ public class Mini_Cinema {
 				double average = sc.nextDouble();
 				moviesByAvgRating(average);
 			case 8:
-				System.out.println("8. Please enter the actor name: ");
+				System.out.println("Please enter the actor name: ");
 				String actor = sc.nextLine();
 				moviesByActor(actor);
 			case 9:
-				System.out.println("8. Please enter the actor name: ");
-
-				// addToWatchList(uID,mID,title);
+				System.out.println("Add a movie to your Watch List");
+				System.out.println("Please enter your user ID: ");
+				uID = sc.nextInt();
+				System.out.println("Please enter the movie ID: ");
+				mID = sc.nextInt();
+				addToWatchList(uID,mID);
 			case 10:
+				System.out.println("Please enter your user ID: ");
+				uID = sc.nextInt();
+				System.out.println("Please enter the movie ID: ");
+				mID = sc.nextInt();
+				addToWatchHistory(uID, mID);
 			case 11:
+				System.out.println("Please enter your user ID: ");
+				uID = sc.nextInt();
+				System.out.println("Please enter the movie ID: ");
+				mID = sc.nextInt();
+				removeMovieFromWatchList( uID,  mID);
 			case 12:
+				System.out.println("Please enter your rating: ");
+				rating = sc.nextInt();
+				System.out.println("Please enter your user ID: ");
+				uID = sc.nextInt();
+				System.out.println("Please enter the movie ID: ");
+				mID = sc.nextInt();
+				rateMovie(rating, uID, mID);
 			case 13:
+				System.out.println("Please enter your user ID: ");
+				uID = sc.nextInt();
+				System.out.println("Please enter the movie ID: ");
+				mID = sc.nextInt();
+				markAsFavorite(uID, mID);
+			case 14:
+				System.out.println("Please enter movie ID: ");
+				mID = sc.nextInt();
+				sc.nextLine();
+				System.out.println("Please enter title: ");
+				title = sc.nextLine();
+				System.out.println("Please enter date: ");
+				date = sc.nextLine();
+				System.out.println("Please enter runtime: ");
+				runtime = sc.nextInt();
+				System.out.println("Please enter budget: ");
+				budget = sc.nextInt();
+				addNewMoview(mID, title, date, runtime, budget);
+			case 15:
+				System.out.println("Please enter a Movie ID: ");
+				mID = sc.nextInt();
+				sc.nextLine();
+				System.out.println("Please enter his/her character: ");
+				character = sc.nextLine();
+				System.out.println("Please enter credit ID: ");
+				creditId = sc.nextLine();
+				System.out.println("Please enter person ID: ");
+				personID = sc.nextInt();
+				sc.nextLine();
+				System.out.println("Please enter his/her name: ");
+				name = sc.nextLine();
+				addNewCast(mID, character, creditId,personID,name);
+			case 16:
+				System.out.println("Please enter movie ID: ");
+				mID = sc.nextInt();
+				sc.nextLine();
+				System.out.println("Please enter credit ID: ");
+				creditId = sc.nextLine();
+				System.out.println("Please enter person ID: ");
+				personID = sc.nextInt();
+				sc.nextLine();
+				System.out.println("Please enter his/her job: ");
+				job = sc.nextLine();
+				System.out.println("Please enter his/her name: ");
+				name = sc.nextLine();
+				addNewCrew(mID, creditId, personID, job, name);
+			case 17:
+			    mostPopularInWatchList();
+			case 18:
+			    mostWatchInWatchList();
+			case 19:
+				lookUserMovie();
+			case 20:
+				System.out.println("Please enter a date: ");
+				date = sc.nextLine();
+				userActivityOn(date);
+			case 21:
+				usersWithSameFav();
+			case 22:
+				System.out.println("Please enter a genre: ");
+				genre = sc.nextLine();
+				System.out.println("Please enter a number; : ");
+				int x = sc.nextInt();
+				recentWatchMovieIn(genre, x);
 			}
 			System.out.println("==================================================================");
 		} while (true);
-
-	}
-
-	private static void callingStoredProcedure() throws SQLException {
-
-		String createProcedure = "CREATE PROCEDURE doSomething() " + "BEGIN SELECT * FROM Students ; "
-				+ "SELECT * FROM Students where age < 20 ; END";
-		statement.executeUpdate(createProcedure);
-
-		boolean hasResults = statement.execute("{CALL doSomething()}");
-		do {
-			if (hasResults) {
-				ResultSet rs = statement.getResultSet();
-				while (rs.next()) {
-					System.out.print("id:" + rs.getInt("id"));
-					System.out.print("name:" + rs.getString("name"));
-					System.out.print("age:" + rs.getInt("age"));
-				}
-			}
-			hasResults = statement.getMoreResults();
-		} while (hasResults || statement.getUpdateCount() != -1);
 
 	}
 
@@ -285,8 +349,7 @@ public class Mini_Cinema {
 	private static void userSignUp(String uname, int age, String gender) {
 
 		try {
-			preparedstatement = con
-					.prepareStatement("INSERT INTO User(user_name, age, gender, registered_on) VALUES(?,?,?,?)");
+			preparedstatement = con.prepareStatement("INSERT INTO User(user_name, age, gender, registered_on) VALUES(?,?,?,?)");
 			preparedstatement.setString(1, uname);
 			preparedstatement.setInt(2, age);
 			preparedstatement.setString(3, gender);
@@ -410,7 +473,7 @@ public class Mini_Cinema {
 				System.out.printf("Title: %s \n", title);
 
 			}
-			ResultSet rs = preparedstatement.executeQuery();
+			rs = preparedstatement.executeQuery();
 			printer.printResultSetfromMovie(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -418,24 +481,80 @@ public class Mini_Cinema {
 	}
 
 	// 9
-	private static void addToWatchList(int uID, int mID, String title) {
+	private static void addToWatchList(int uID, int mID) {
 
-		System.out.println("\nAdding  " + title + " to Watch List");
 		try {
 			preparedstatement = con.prepareStatement(
-					"insert into Watch_List (user_id, movie_id, title, added_on) values (?, ?, ?, ?);");
+					"insert into Watch_List (user_id, movie_id, added_on) values (?, ?, ?);");
 			java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
 			preparedstatement.setInt(1, uID);
 			preparedstatement.setInt(2, mID);
-			preparedstatement.setString(3, title);
-			preparedstatement.setTimestamp(4, date);
+			preparedstatement.setTimestamp(3, date);
 			rs = preparedstatement.executeQuery();
-			ResultSet rs = preparedstatement.executeQuery();
 			printer.printResultSetfromWatch_List(rs);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
+	// 10
+	private static void addToWatchHistory(int uID, int mID) {
+
+			try {
+				preparedstatement = con.prepareStatement(
+						"insert into Watch_History (user_id, movie_id, added_on) values (?, ?, ?);");
+				java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
+				preparedstatement.setInt(1, uID);
+				preparedstatement.setInt(2, mID);
+				preparedstatement.setTimestamp(3, date);
+				rs = preparedstatement.executeQuery();
+				printer.printResultSetfromWatch_History(rs);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+	// 11
+	private static void removeMovieFromWatchList(int uID, int mID) {
+			try {
+				preparedstatement = con.prepareStatement("call DeleteFromWatchList(?, ?);");
+				preparedstatement.setInt(1, uID);
+				preparedstatement.setInt(2, mID);
+				rs = preparedstatement.executeQuery();
+				printer.printResultSetfromWatch_List(rs);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+	// 12
+	private static void rateMovie(int rating, int uID, int mID) {
+			try {
+				preparedstatement = con.prepareStatement(
+						"update Watch_History set rating = ? where user_id = ? and movie_id = ?;");
+				java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
+				preparedstatement.setInt(1, rating);
+				preparedstatement.setInt(2, uID);
+				preparedstatement.setInt(3, mID);
+				rs = preparedstatement.executeQuery();
+				printer.printResultSetfromWatch_List(rs);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+	}
+
+	// 13
+	private static void markAsFavorite(int uID, int mID) {
+
+		try {
+			preparedstatement = con.prepareStatement(
+					"UPDATE Watch_History SET favorite = true WHERE user_id = ? AND movie_id = ?;");
+			preparedstatement.setInt(1, uID);
+			preparedstatement.setInt(2, mID);
+			rs = preparedstatement.executeQuery();
+			printer.printResultSetfromWatch_List(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	// 14
 	private static void addNewMoview(int mID, String title, String date, int runtime, int budget) {
