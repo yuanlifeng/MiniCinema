@@ -487,7 +487,7 @@ public class Mini_Cinema{
 		try {
 			preparedstatement = con.prepareStatement("(select user_id, movie_id, updated_on from Watch_List where DATE(updated_on) = ?) union (select user_id, movie_id, updated_on from Watch_History where DATE(updated_on) = ?);");
 			preparedstatement.setDate(1, Date.valueOf(date));
-			preparedstatement.setDate(2, Date.valueOf(date);
+			preparedstatement.setDate(2, Date.valueOf(date));
 			ResultSet rs = preparedstatement.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
