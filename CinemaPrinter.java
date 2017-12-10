@@ -28,7 +28,7 @@ public class CinemaPrinter {
 	public void printResultSetfromMovieCast(ResultSet rs) throws SQLException {
 
 		System.out.println(
-				"movie_id" + "|" + "movie_character " + "|" + "credit_id " + "|" + "person_id " + "|" + "name");
+				"movie_id" + "|" + "movie_character" + "|" + "credit_id" + "|" + "person_id " + "|" + "name");
 		while (rs.next()) {
 			int movie_id = rs.getInt("movie_id");
 			String movie_character = rs.getString("movie_character");
@@ -41,7 +41,7 @@ public class CinemaPrinter {
 
 	public void printResultSetfromMovieCrew(ResultSet rs) throws SQLException {
 
-		System.out.println("movie_id" + "|" + "credit_id " + "|" + "person_id " + "|" + "job " + "|" + "name");
+		System.out.println("movie_id" + "|" + "credit_id" + "|" + "person_id" + "|" + "job" + "|" + "name");
 		while (rs.next()) {
 			int movie_id = rs.getInt("movie_id");
 			String credit_id = rs.getString("credit_id");
